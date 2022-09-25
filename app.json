@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "redo-mdb",
+    "slug": "redo-mdb",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "redo-mdb"
+}
