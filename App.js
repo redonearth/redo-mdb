@@ -1,56 +1,33 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Font from 'expo-font';
-import { Asset } from 'expo-asset';
-import { Image } from 'react-native';
+import { useFonts } from 'expo-font';
+import { useAssets } from 'expo-asset';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import Tabs from './navigation/Tabs';
 
-SplashScreen.preventAutoHideAsync();
-
-const loadFonts = (fonts) => fonts.map((font) => Font.loadAsync(font));
-
-const loadAssets = (assets) =>
-  assets.map((asset) => {
-    if (typeof asset === 'string') {
-      return Image.prefetch(asset);
-    } else {
-      return Asset.loadAsync(asset);
-    }
-  });
-
 export default function App() {
-  const [ready, setReady] = useState(false);
+  const [fonts] = useFonts([Ionicons.font]);
+  const [assets] = useAssets([require('./redonearth.png')]);
 
   useEffect(() => {
     async function prefare() {
-      try {
-        const fonts = loadFonts([Ionicons.font]);
-        const assets = loadAssets([require('./redonearth.png')]);
-        await Promise.all([...fonts, ...assets]);
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        setReady(true);
-      }
+      SplashScreen.preventAutoHideAsync();
     }
-
     prefare();
   }, []);
 
   const onLayout = useCallback(async () => {
-    if (ready) {
+    if (fonts && assets) {
       await SplashScreen.hideAsync();
     }
-  }, [ready]);
-
-  if (!ready) {
+  }, [fonts, assets]);
+  if (!fonts && !assets) {
     return null;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer onLayout={onLayout}>
       <Tabs />
     </NavigationContainer>
   );
