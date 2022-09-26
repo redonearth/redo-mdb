@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { Asset } from 'expo-asset';
-import { Image, Text, View } from 'react-native';
+import { Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import Tabs from './navigation/Tabs';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,8 +50,8 @@ export default function App() {
   }
 
   return (
-    <View onLayout={onLayout}>
-      <Text>Hahaha</Text>
-    </View>
+    <NavigationContainer>
+      <Tabs />
+    </NavigationContainer>
   );
 }
