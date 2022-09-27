@@ -12,6 +12,9 @@ export default function Tabs() {
   const isDark = useColorScheme() === 'dark';
   return (
     <Tab.Navigator
+      sceneContainerStyle={{
+        backgroundColor: isDark ? COLORS.black : 'white',
+      }}
       screenOptions={{
         headerStyle: {
           backgroundColor: isDark ? COLORS.black : 'white',
