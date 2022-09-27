@@ -4,6 +4,7 @@ import { StyleSheet, useColorScheme, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { makeImagePath } from '../utils';
 import Poster from './Poster';
+import Votes from './Votes';
 
 const BgImg = styled.Image``;
 
@@ -30,11 +31,6 @@ const Overview = styled.Text<{ isDark: boolean }>`
   margin-top: 8px;
   color: ${(props) =>
     props.isDark ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.75)'};
-`;
-
-const Votes = styled(Overview)`
-  font-size: 12px;
-  font-weight: 600;
 `;
 
 interface SlideProps {
@@ -68,9 +64,7 @@ export default function Slide({
           <Poster path={posterPath} />
           <Column>
             <Title isDark={isDark}>{originalTitle}</Title>
-            {voteAverage > 0 ? (
-              <Votes isDark={isDark}>★ {voteAverage}/10</Votes>
-            ) : null}
+            {voteAverage && <Votes votes={voteAverage} />}
             <Overview isDark={isDark}>{overview.slice(0, 120)}...</Overview>
           </Column>
         </Wrapper>
