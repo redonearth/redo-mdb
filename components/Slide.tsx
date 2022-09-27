@@ -3,14 +3,9 @@ import styled from 'styled-components/native';
 import { StyleSheet, useColorScheme, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { makeImagePath } from '../utils';
+import Poster from './Poster';
 
 const BgImg = styled.Image``;
-
-const Poster = styled.Image`
-  width: 100px;
-  height: 160px;
-  border-radius: 5px;
-`;
 
 const Wrapper = styled.View`
   flex-direction: row;
@@ -70,7 +65,7 @@ export default function Slide({
         style={StyleSheet.absoluteFill}
       >
         <Wrapper>
-          <Poster source={{ uri: makeImagePath(posterPath) }} />
+          <Poster path={posterPath} />
           <Column>
             <Title isDark={isDark}>{originalTitle}</Title>
             {voteAverage > 0 ? (
