@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { useAssets } from 'expo-asset';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
-import Tabs from './navigation/Tabs';
+import Root from './navigation/Root';
 
 export default function App() {
   const [fonts] = useFonts([Ionicons.font]);
@@ -12,7 +12,8 @@ export default function App() {
 
   useEffect(() => {
     async function prefare() {
-      SplashScreen.preventAutoHideAsync();
+      // SplashScreen.preventAutoHideAsync();
+      await SplashScreen.hideAsync();
     }
     prefare();
   }, []);
@@ -28,7 +29,7 @@ export default function App() {
 
   return (
     <NavigationContainer onLayout={onLayout}>
-      <Tabs />
+      <Root />
     </NavigationContainer>
   );
 }
