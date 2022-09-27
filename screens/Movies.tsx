@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import {
   ActivityIndicator,
   Dimensions,
-  ScrollView,
+  RefreshControl,
   useColorScheme,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -97,10 +97,12 @@ const requestUrl = (url: string, query: string = '') =>
 
 export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
   const isDark = useColorScheme() === 'dark';
+  const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [nowPlaying, setNowPlaying] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [trending, setTrending] = useState([]);
+
   const getNowPlaying = async () => {
     const { results } = await (
       await fetch(
@@ -121,13 +123,18 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     const { results } = await (
       await fetch(requestUrl(`/trending/movie/week`))
     ).json();
-    console.log(requestUrl(`/trending/movie/week`));
     setTrending(results);
   };
   const getData = async () => {
     await Promise.all([getNowPlaying(), getUpcoming(), getTrending()]);
     setLoading(false);
   };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -137,7 +144,11 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
       <ActivityIndicator />
     </Loader>
   ) : (
-    <Container>
+    <Container
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Swiper
         loop
         autoplay
