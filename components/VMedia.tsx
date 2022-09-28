@@ -5,7 +5,6 @@ import Poster from './Poster';
 import Votes from './Votes';
 
 const VMovie = styled.View`
-  margin-right: 15px;
   align-items: center;
 `;
 
@@ -32,8 +31,8 @@ export default function VMedia({
     <VMovie>
       <Poster path={posterPath} />
       <Title isDark={isDark}>
-        {originalTitle.slice(0, 13)}
-        {originalTitle.length > 13 && '...'}
+        {originalTitle.slice(0, 12)}
+        {originalTitle.length > 12 && '...'}
       </Title>
       <Votes votes={voteAverage} />
     </VMovie>

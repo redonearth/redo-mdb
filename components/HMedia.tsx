@@ -7,7 +7,6 @@ import Votes from './Votes';
 const HMovie = styled.View`
   flex-direction: row;
   padding: 0px 30px;
-  margin-bottom: 30px;
 `;
 
 const HColumn = styled.View`
