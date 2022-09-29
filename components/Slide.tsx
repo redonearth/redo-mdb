@@ -34,8 +34,8 @@ const Overview = styled.Text<{ isDark: boolean }>`
 `;
 
 interface SlideProps {
-  backdropPath: string;
-  posterPath: string;
+  backdropPath: string | null;
+  posterPath: string | null;
   originalTitle: string;
   voteAverage: number;
   overview: string;
@@ -52,7 +52,7 @@ export default function Slide({
   return (
     <View style={{ flex: 1 }}>
       <BgImg
-        source={{ uri: makeImagePath(backdropPath) }}
+        source={{ uri: makeImagePath(backdropPath || '') }}
         style={StyleSheet.absoluteFill}
       />
       <BlurView
@@ -61,7 +61,7 @@ export default function Slide({
         style={StyleSheet.absoluteFill}
       >
         <Wrapper>
-          <Poster path={posterPath} />
+          <Poster path={posterPath || ''} />
           <Column>
             <Title isDark={isDark}>{originalTitle}</Title>
             {voteAverage ? <Votes votes={voteAverage} /> : null}

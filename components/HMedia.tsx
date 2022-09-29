@@ -1,19 +1,19 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, View } from 'react-native';
 import Poster from './Poster';
 import Votes from './Votes';
 
 const HMovie = styled.View`
   flex-direction: row;
   padding: 0px 30px;
-`;
+` as unknown as typeof View;
 
 const HColumn = styled.View`
   flex-direction: column;
   width: 80%;
   margin-left: 15px;
-`;
+` as unknown as typeof View;
 
 const Title = styled.Text<{ isDark: boolean }>`
   color: ${(props) => (props.isDark ? 'white' : 'black')};
@@ -36,7 +36,7 @@ const ReleaseDate = styled.Text<{ isDark: boolean }>`
 `;
 
 interface HMediaProps {
-  posterPath: string;
+  posterPath: string | null;
   originalTitle: string;
   releaseDate?: string;
   overview: string;
@@ -53,7 +53,7 @@ export default function HMedia({
   const isDark = useColorScheme() === 'dark';
   return (
     <HMovie>
-      <Poster path={posterPath} />
+      <Poster path={posterPath || ''} />
       <HColumn>
         <Title isDark={isDark}>
           {originalTitle.length > 30
