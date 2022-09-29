@@ -64,7 +64,7 @@ export default function Slide({
           <Poster path={posterPath} />
           <Column>
             <Title isDark={isDark}>{originalTitle}</Title>
-            {voteAverage && <Votes votes={voteAverage} />}
+            {voteAverage ? <Votes votes={voteAverage} /> : null}
             <Overview isDark={isDark}>{overview.slice(0, 120)}...</Overview>
           </Column>
         </Wrapper>
