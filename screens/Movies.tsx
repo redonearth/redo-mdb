@@ -11,7 +11,7 @@ import Swiper from 'react-native-swiper';
 import Slide from '../components/Slide';
 import HMedia from '../components/HMedia';
 import VMedia from '../components/VMedia';
-import { useQuery } from 'react-query';
+import { QueryClient, useQuery } from 'react-query';
 import { movieAPI } from '../api';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -57,29 +57,25 @@ const HSeperator = styled.View`
 export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
   const isDark = useColorScheme() === 'dark';
 
+  const queryClient = new QueryClient();
   const {
     isLoading: nowPlayingLoading,
     data: nowPlayingData,
-    refetch: refetchNowPlaying,
     isRefetching: isRefetchingNowPlaying,
-  } = useQuery('nowPlaying', movieAPI.nowPlaying);
+  } = useQuery(['movie', 'nowPlaying'], movieAPI.nowPlaying);
   const {
     isLoading: upcomingLoading,
     data: upcomingData,
-    refetch: refetchUpcoming,
     isRefetching: isRefetchingUpcoming,
-  } = useQuery('upcoming', movieAPI.upcoming);
+  } = useQuery(['movie', 'upcoming'], movieAPI.upcoming);
   const {
     isLoading: trendingLoading,
     data: trendingData,
-    refetch: refetchTrending,
     isRefetching: isRefetchingTrending,
-  } = useQuery('trending', movieAPI.trending);
+  } = useQuery(['movie', 'trending'], movieAPI.trending);
 
   async function onRefresh() {
-    refetchNowPlaying();
-    refetchUpcoming();
-    refetchTrending();
+    queryClient.refetchQueries(['movie']);
   }
 
   function renderVMedia({ item }: any) {
