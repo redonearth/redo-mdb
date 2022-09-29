@@ -8,6 +8,9 @@ import Root from './navigation/Root';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider } from 'styled-components/native';
 import { darkTheme, lightTheme } from './styled';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [fonts] = useFonts([Ionicons.font]);
@@ -32,10 +35,12 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <NavigationContainer onLayout={onLayout}>
-        <Root />
-      </NavigationContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <NavigationContainer onLayout={onLayout}>
+          <Root />
+        </NavigationContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

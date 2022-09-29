@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import {
   ActivityIndicator,
@@ -11,6 +11,8 @@ import Swiper from 'react-native-swiper';
 import Slide from '../components/Slide';
 import HMedia from '../components/HMedia';
 import VMedia from '../components/VMedia';
+import { useQuery } from 'react-query';
+import { movieAPI } from '../api';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -52,62 +54,33 @@ const HSeperator = styled.View`
   height: 15px;
 `;
 
-const BASE_URL = `https://api.themoviedb.org/3`;
-const API_KEY = '5efe6813c047c5a28d580b92e30a6262';
-const LANGUAGE = `language=en-US`;
-const PAGE = `page=1`;
-const REGION = `region=KR`;
-const requestUrl = (url: string, query: string = '') =>
-  `${BASE_URL}${url}?api_key=${API_KEY}${query}`;
-
 export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
   const isDark = useColorScheme() === 'dark';
 
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [nowPlaying, setNowPlaying] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
-  const [trending, setTrending] = useState([]);
-
-  async function getNowPlaying() {
-    const { results } = await (
-      await fetch(
-        requestUrl(`/movie/now_playing`, `&${LANGUAGE}&${PAGE}&${REGION}`)
-      )
-    ).json();
-    setNowPlaying(results);
-  }
-
-  async function getUpcoming() {
-    const { results } = await (
-      await fetch(
-        requestUrl(`/movie/upcoming`, `&${LANGUAGE}&${PAGE}&${REGION}`)
-      )
-    ).json();
-    setUpcoming(results);
-  }
-
-  async function getTrending() {
-    const { results } = await (
-      await fetch(requestUrl(`/trending/movie/week`))
-    ).json();
-    setTrending(results);
-  }
-
-  async function getData() {
-    await Promise.all([getNowPlaying(), getUpcoming(), getTrending()]);
-    setLoading(false);
-  }
+  const {
+    isLoading: nowPlayingLoading,
+    data: nowPlayingData,
+    refetch: refetchNowPlaying,
+    isRefetching: isRefetchingNowPlaying,
+  } = useQuery('nowPlaying', movieAPI.nowPlaying);
+  const {
+    isLoading: upcomingLoading,
+    data: upcomingData,
+    refetch: refetchUpcoming,
+    isRefetching: isRefetchingUpcoming,
+  } = useQuery('upcoming', movieAPI.upcoming);
+  const {
+    isLoading: trendingLoading,
+    data: trendingData,
+    refetch: refetchTrending,
+    isRefetching: isRefetchingTrending,
+  } = useQuery('trending', movieAPI.trending);
 
   async function onRefresh() {
-    setRefreshing(true);
-    await getData();
-    setRefreshing(false);
+    refetchNowPlaying();
+    refetchUpcoming();
+    refetchTrending();
   }
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   function renderVMedia({ item }: any) {
     return (
@@ -134,6 +107,10 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     return parseInt(item.id);
   }
 
+  const loading = nowPlayingLoading || upcomingLoading || trendingLoading;
+  const refreshing =
+    isRefetchingNowPlaying || isRefetchingUpcoming || isRefetchingTrending;
+
   return loading ? (
     <Loader>
       <ActivityIndicator />
@@ -155,7 +132,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
               marginBottom: 30,
             }}
           >
-            {nowPlaying.map((movie: any) => (
+            {nowPlayingData.results.map((movie: any) => (
               <Slide
                 key={movie.id}
                 backdropPath={movie.backdrop_path}
@@ -170,7 +147,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
           <ListContainer>
             <ListTitle isDark={isDark}>Trending Movies</ListTitle>
             <TrendingScroll
-              data={trending}
+              data={trendingData.results}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 30 }}
@@ -183,7 +160,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
           <ComingSoonTitle isDark={isDark}>Coming Soon</ComingSoonTitle>
         </>
       }
-      data={upcoming}
+      data={upcomingData.results}
       ItemSeparatorComponent={HSeperator}
       keyExtractor={listKeyExtractor}
       renderItem={renderHMedia}
