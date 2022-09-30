@@ -16,7 +16,7 @@ const Title = styled.Text<{ isDark: boolean }>`
 `;
 
 interface VMediaProps {
-  posterPath: string | null;
+  posterPath: string;
   originalTitle: string;
   voteAverage: number;
 }
@@ -29,7 +29,7 @@ export default function VMedia({
   const isDark = useColorScheme() === 'dark';
   return (
     <VMovie>
-      <Poster path={posterPath || ''} />
+      <Poster path={posterPath} />
       <Title isDark={isDark}>
         {originalTitle.slice(0, 12)}
         {originalTitle.length > 12 && '...'}

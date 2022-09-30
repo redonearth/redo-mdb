@@ -1,16 +1,12 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  useColorScheme,
-} from 'react-native';
+import { Dimensions, FlatList, useColorScheme } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Loader from '../components/Loader';
 import Swiper from 'react-native-swiper';
 import Slide from '../components/Slide';
 import HMedia from '../components/HMedia';
-import VMedia from '../components/VMedia';
+import HList from '../components/HList';
 import { QueryClient, useQuery } from 'react-query';
 import { Movie, movieAPI, MovieResponse } from '../api';
 
@@ -19,13 +15,6 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const Container = styled.FlatList`
   background-color: ${(props) => props.theme.mainBgColor};
 ` as unknown as typeof FlatList;
-
-const Loader = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  background-color: ${(props) => props.theme.mainBgColor};
-`;
 
 const ListContainer = styled.View`
   margin-bottom: 40px;
@@ -38,16 +27,8 @@ const ListTitle = styled.Text<{ isDark: boolean }>`
   margin-left: 30px;
 `;
 
-const TrendingScroll = styled.FlatList`
-  margin-top: 15px;
-` as unknown as typeof FlatList;
-
 const ComingSoonTitle = styled(ListTitle)`
   margin-bottom: 15px;
-`;
-
-const VSeperator = styled.View`
-  width: 15px;
 `;
 
 const HSeperator = styled.View`
@@ -78,16 +59,6 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     queryClient.refetchQueries(['movie']);
   }
 
-  function renderVMedia({ item }: { item: Movie }) {
-    return (
-      <VMedia
-        posterPath={item.poster_path}
-        originalTitle={item.original_title}
-        voteAverage={item.vote_average}
-      />
-    );
-  }
-
   function renderHMedia({ item }: { item: Movie }) {
     return (
       <HMedia
@@ -108,9 +79,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     isRefetchingNowPlaying || isRefetchingUpcoming || isRefetchingTrending;
 
   return loading ? (
-    <Loader>
-      <ActivityIndicator />
-    </Loader>
+    <Loader />
   ) : upcomingData ? (
     <Container
       refreshing={refreshing}
@@ -143,16 +112,11 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
           </Swiper>
 
           <ListContainer>
-            <ListTitle isDark={isDark}>Trending Movies</ListTitle>
             {trendingData ? (
-              <TrendingScroll
+              <HList
+                isDark={isDark}
+                title="Trending Movies"
                 data={trendingData.results}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 30 }}
-                ItemSeparatorComponent={VSeperator}
-                keyExtractor={listKeyExtractor}
-                renderItem={renderVMedia}
               />
             ) : null}
           </ListContainer>
