@@ -4,8 +4,8 @@ const LANGUAGE = `language=en-US`;
 const PAGE = `page=1`;
 const REGION = `region=KR`;
 
-function requestUrl(url: string, query: string = '') {
-  return `${BASE_URL}${url}?api_key=${API_KEY}${query}`;
+function requestUrl(url: string, queryString: string = '') {
+  return `${BASE_URL}${url}?api_key=${API_KEY}${queryString}`;
 }
 
 export interface Movie {
@@ -70,6 +70,15 @@ export const movieAPI = {
       requestUrl(`/movie/now_playing`, `&${LANGUAGE}&${PAGE}&${REGION}`)
     ).then((res) => res.json());
   },
+  search: async function ({ queryKey }: any) {
+    const [_, query] = queryKey;
+    return fetch(
+      requestUrl(
+        `/search/movie`,
+        `&query=${query}&${LANGUAGE}&${PAGE}&${REGION}`
+      )
+    ).then((res) => res.json());
+  },
 };
 
 export const tvAPI = {
@@ -84,6 +93,12 @@ export const tvAPI = {
   topRated: async function () {
     return fetch(
       requestUrl(`/tv/top_rated`, `&${LANGUAGE}&${PAGE}&${REGION}`)
+    ).then((res) => res.json());
+  },
+  search: async function ({ queryKey }: any) {
+    const [_, query] = queryKey;
+    return fetch(
+      requestUrl(`/search/tv`, `&query=${query}&${LANGUAGE}&${PAGE}&${REGION}`)
     ).then((res) => res.json());
   },
 };
