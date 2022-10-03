@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { RefreshControl, ScrollView, useColorScheme } from 'react-native';
 import { QueryClient, useQuery } from 'react-query';
 import { tvAPI, TVResponse } from '../api';
@@ -9,29 +9,25 @@ export default function TVs() {
   const isDark = useColorScheme() === 'dark';
 
   const queryClient = new QueryClient();
-  const {
-    isLoading: trendingLoading,
-    data: trendingData,
-    isRefetching: isRefetchingTrending,
-  } = useQuery<TVResponse>(['tv', 'trending'], tvAPI.trending);
-  const {
-    isLoading: todayLoading,
-    data: todayData,
-    isRefetching: isRefetchingToday,
-  } = useQuery<TVResponse>(['tv', 'today'], tvAPI.airingToday);
-  const {
-    isLoading: topLoading,
-    data: topData,
-    isRefetching: isRefetchingTop,
-  } = useQuery<TVResponse>(['tv', 'top'], tvAPI.topRated);
+  const [refreshing, setRefreshing] = useState(false);
+  const { isLoading: trendingLoading, data: trendingData } =
+    useQuery<TVResponse>(['tv', 'trending'], tvAPI.trending);
+  const { isLoading: todayLoading, data: todayData } = useQuery<TVResponse>(
+    ['tv', 'today'],
+    tvAPI.airingToday
+  );
+  const { isLoading: topLoading, data: topData } = useQuery<TVResponse>(
+    ['tv', 'top'],
+    tvAPI.topRated
+  );
 
   async function onRefresh() {
-    queryClient.refetchQueries(['tv']);
+    setRefreshing(true);
+    await queryClient.refetchQueries(['tv']);
+    setRefreshing(false);
   }
 
   const loading = trendingLoading || todayLoading || topLoading;
-  const refreshing =
-    isRefetchingTrending || isRefetchingToday || isRefetchingTop;
 
   return loading ? (
     <Loader />

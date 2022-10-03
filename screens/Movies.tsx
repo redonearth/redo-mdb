@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import { Dimensions, FlatList, useColorScheme } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -39,24 +39,18 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
   const isDark = useColorScheme() === 'dark';
 
   const queryClient = new QueryClient();
-  const {
-    isLoading: nowPlayingLoading,
-    data: nowPlayingData,
-    isRefetching: isRefetchingNowPlaying,
-  } = useQuery<MovieResponse>(['movie', 'nowPlaying'], movieAPI.nowPlaying);
-  const {
-    isLoading: upcomingLoading,
-    data: upcomingData,
-    isRefetching: isRefetchingUpcoming,
-  } = useQuery<MovieResponse>(['movie', 'upcoming'], movieAPI.upcoming);
-  const {
-    isLoading: trendingLoading,
-    data: trendingData,
-    isRefetching: isRefetchingTrending,
-  } = useQuery<MovieResponse>(['movie', 'trending'], movieAPI.trending);
+  const [refreshing, setRefreshing] = useState(false);
+  const { isLoading: nowPlayingLoading, data: nowPlayingData } =
+    useQuery<MovieResponse>(['movie', 'nowPlaying'], movieAPI.nowPlaying);
+  const { isLoading: upcomingLoading, data: upcomingData } =
+    useQuery<MovieResponse>(['movie', 'upcoming'], movieAPI.upcoming);
+  const { isLoading: trendingLoading, data: trendingData } =
+    useQuery<MovieResponse>(['movie', 'trending'], movieAPI.trending);
 
   async function onRefresh() {
-    queryClient.refetchQueries(['movie']);
+    setRefreshing(true);
+    await queryClient.refetchQueries(['movie']);
+    setRefreshing(false);
   }
 
   function renderHMedia({ item }: { item: Movie }) {
@@ -75,8 +69,6 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
   }
 
   const loading = nowPlayingLoading || upcomingLoading || trendingLoading;
-  const refreshing =
-    isRefetchingNowPlaying || isRefetchingUpcoming || isRefetchingTrending;
 
   return loading ? (
     <Loader />
