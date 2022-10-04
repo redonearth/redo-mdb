@@ -46,6 +46,7 @@ export default function HList({ isDark, title, data }: HListProps) {
                 : item.original_name
             }
             voteAverage={item.vote_average}
+            fullData={item}
           />
         )}
       />
