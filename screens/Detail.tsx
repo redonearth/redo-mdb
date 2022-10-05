@@ -1,12 +1,17 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
-import { Dimensions, Image, StyleSheet } from 'react-native';
+import { Dimensions, Image, Platform, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/Stack';
 import { makeImagePath } from '../utils';
 import { LinearGradient } from 'expo-linear-gradient';
 import Poster from '../components/Poster';
 import COLORS from '../colors';
+import { useQuery } from 'react-query';
+import { movieAPI, tvAPI } from '../api';
+import Loader from '../components/Loader';
+import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -37,12 +42,27 @@ const Title = styled.Text`
   flex-shrink: 1;
 `;
 
+const Data = styled.View`
+  padding: 0px 20px;
+`;
+
 const Overview = styled.Text`
   color: ${(props) => props.theme.textColor};
-  margin-top: 30px;
-  padding: 0px 20px;
   font-size: 18px;
   line-height: 22px;
+  margin: 30px 0px 20px;
+`;
+
+const VideoButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  font-weight: 600;
+  padding: 8px 0px;
+  margin-left: 8px;
 `;
 
 type DetailScreenProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
@@ -51,11 +71,30 @@ export default function Detail({
   navigation: { setOptions },
   route: { params },
 }: DetailScreenProps) {
+  const isMovie = 'original_title' in params;
+  const { isLoading, data } = useQuery(
+    [isMovie ? 'movie' : 'tv', params.id],
+    isMovie ? movieAPI.detail : tvAPI.detail
+  );
+
   useEffect(() => {
     setOptions({
       title: 'original_title' in params ? 'Movie' : 'TV',
     });
   }, []);
+
+  async function openYouTubeLink(videoId: string) {
+    const baseUrl = `http://m.youtube.com/watch?v=${videoId}`;
+    let browserPackage: string | undefined;
+
+    if (Platform.OS === 'android') {
+      const tabsSupportingBrowsers =
+        await WebBrowser.getCustomTabsSupportingBrowsersAsync();
+      browserPackage = tabsSupportingBrowsers?.defaultBrowserPackage;
+    }
+    await WebBrowser.openBrowserAsync(baseUrl, { browserPackage });
+  }
+
   return (
     <Container>
       <Header>
@@ -76,7 +115,19 @@ export default function Detail({
           </Title>
         </Column>
       </Header>
-      <Overview>{params.overview}</Overview>
+      <Data>
+        <Overview>{params.overview}</Overview>
+        {isLoading ? <Loader /> : null}
+        {data?.videos?.results?.map((video: any) => (
+          <VideoButton
+            key={video.key}
+            onPress={() => openYouTubeLink(video.key)}
+          >
+            <Ionicons name="logo-youtube" color="white" size={24} />
+            <ButtonText>{video.name}</ButtonText>
+          </VideoButton>
+        ))}
+      </Data>
     </Container>
   );
 }

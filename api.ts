@@ -79,6 +79,12 @@ export const movieAPI = {
       )
     ).then((res) => res.json());
   },
+  detail: async function ({ queryKey }: any) {
+    const [_, id] = queryKey;
+    return fetch(
+      requestUrl(`/movie/${id}`, '&append_to_response=videos,images')
+    ).then((res) => res.json());
+  },
 };
 
 export const tvAPI = {
@@ -99,6 +105,12 @@ export const tvAPI = {
     const [_, query] = queryKey;
     return fetch(
       requestUrl(`/search/tv`, `&query=${query}&${LANGUAGE}&${PAGE}&${REGION}`)
+    ).then((res) => res.json());
+  },
+  detail: async function ({ queryKey }: any) {
+    const [_, id] = queryKey;
+    return fetch(
+      requestUrl(`/tv/${id}`, '&append_to_response=videos,images')
     ).then((res) => res.json());
   },
 };
