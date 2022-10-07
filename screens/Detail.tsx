@@ -1,6 +1,13 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
-import { Dimensions, Image, Platform, StyleSheet } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Share,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/Stack';
 import { makeImagePath } from '../utils';
@@ -67,6 +74,8 @@ const ButtonText = styled.Text`
 
 type DetailScreenProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
 
+const isAndroid = Platform.OS === 'android';
+
 export default function Detail({
   navigation: { setOptions },
   route: { params },
@@ -77,23 +86,63 @@ export default function Detail({
     isMovie ? movieAPI.detail : tvAPI.detail
   );
 
-  useEffect(() => {
-    setOptions({
-      title: 'original_title' in params ? 'Movie' : 'TV',
-    });
-  }, []);
+  function ShareButton() {
+    return (
+      <TouchableOpacity onPress={shareMedia}>
+        <Ionicons name="share-outline" color="white" size={24} />
+      </TouchableOpacity>
+    );
+  }
+
+  async function shareMedia() {
+    const homepage = isMovie
+      ? `https://www.imdb.com/title/${data?.imdb_id}`
+      : data?.homepage;
+
+    if (isAndroid) {
+      await Share.share({
+        message: `${params.overview}\nCheck it out: ${homepage}`,
+        title:
+          'original_title' in params
+            ? params.original_title
+            : params.original_name,
+      });
+    } else {
+      await Share.share({
+        url: homepage,
+        title:
+          'original_title' in params
+            ? params.original_title
+            : params.original_name,
+      });
+    }
+  }
 
   async function openYouTubeLink(videoId: string) {
     const baseUrl = `http://m.youtube.com/watch?v=${videoId}`;
     let browserPackage: string | undefined;
 
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       const tabsSupportingBrowsers =
         await WebBrowser.getCustomTabsSupportingBrowsersAsync();
       browserPackage = tabsSupportingBrowsers?.defaultBrowserPackage;
     }
     await WebBrowser.openBrowserAsync(baseUrl, { browserPackage });
   }
+
+  useEffect(() => {
+    setOptions({
+      title: 'original_title' in params ? 'Movie' : 'TV',
+    });
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      setOptions({
+        headerRight: () => <ShareButton />,
+      });
+    }
+  }, [data]);
 
   return (
     <Container>
