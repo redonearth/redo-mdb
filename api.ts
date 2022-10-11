@@ -1,7 +1,6 @@
 const API_KEY = '5efe6813c047c5a28d580b92e30a6262';
 const BASE_URL = `https://api.themoviedb.org/3`;
 const LANGUAGE = `language=en-US`;
-const PAGE = `page=1`;
 const REGION = `region=KR`;
 
 function requestUrl(url: string, queryString: string = '') {
@@ -60,14 +59,15 @@ export const movieAPI = {
   trending: async function () {
     return fetch(requestUrl(`/trending/movie/week`)).then((res) => res.json());
   },
-  upcoming: async function () {
+  upcoming: async function ({ pageParam }: any) {
+    typeof pageParam !== 'number' ? 1 : pageParam;
     return fetch(
-      requestUrl(`/movie/upcoming`, `&${LANGUAGE}&${PAGE}&${REGION}`)
+      requestUrl(`/movie/upcoming`, `&${LANGUAGE}&page=${pageParam}&${REGION}`)
     ).then((res) => res.json());
   },
   nowPlaying: async function () {
     return fetch(
-      requestUrl(`/movie/now_playing`, `&${LANGUAGE}&${PAGE}&${REGION}`)
+      requestUrl(`/movie/now_playing`, `&${LANGUAGE}&page=1&${REGION}`)
     ).then((res) => res.json());
   },
   search: async function ({ queryKey }: any) {
@@ -75,7 +75,7 @@ export const movieAPI = {
     return fetch(
       requestUrl(
         `/search/movie`,
-        `&query=${query}&${LANGUAGE}&${PAGE}&${REGION}`
+        `&query=${query}&${LANGUAGE}&page=1&${REGION}`
       )
     ).then((res) => res.json());
   },
@@ -93,18 +93,18 @@ export const tvAPI = {
   },
   airingToday: async function () {
     return fetch(
-      requestUrl(`/tv/airing_today`, `&${LANGUAGE}&${PAGE}&${REGION}`)
+      requestUrl(`/tv/airing_today`, `&${LANGUAGE}&page=1&${REGION}`)
     ).then((res) => res.json());
   },
   topRated: async function () {
     return fetch(
-      requestUrl(`/tv/top_rated`, `&${LANGUAGE}&${PAGE}&${REGION}`)
+      requestUrl(`/tv/top_rated`, `&${LANGUAGE}&page=1&${REGION}`)
     ).then((res) => res.json());
   },
   search: async function ({ queryKey }: any) {
     const [_, query] = queryKey;
     return fetch(
-      requestUrl(`/search/tv`, `&query=${query}&${LANGUAGE}&${PAGE}&${REGION}`)
+      requestUrl(`/search/tv`, `&query=${query}&${LANGUAGE}&page=1&${REGION}`)
     ).then((res) => res.json());
   },
   detail: async function ({ queryKey }: any) {

@@ -7,7 +7,7 @@ import Swiper from 'react-native-swiper';
 import Slide from '../components/Slide';
 import HMedia from '../components/HMedia';
 import HList from '../components/HList';
-import { QueryClient, useQuery } from 'react-query';
+import { QueryClient, useInfiniteQuery, useQuery } from 'react-query';
 import { Movie, movieAPI, MovieResponse } from '../api';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -40,12 +40,28 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
 
   const queryClient = new QueryClient();
   const [refreshing, setRefreshing] = useState(false);
+
   const { isLoading: nowPlayingLoading, data: nowPlayingData } =
     useQuery<MovieResponse>(['movie', 'nowPlaying'], movieAPI.nowPlaying);
-  const { isLoading: upcomingLoading, data: upcomingData } =
-    useQuery<MovieResponse>(['movie', 'upcoming'], movieAPI.upcoming);
+
   const { isLoading: trendingLoading, data: trendingData } =
     useQuery<MovieResponse>(['movie', 'trending'], movieAPI.trending);
+
+  const {
+    isLoading: upcomingLoading,
+    data: upcomingData,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery<MovieResponse>(
+    ['movie', 'upcoming'],
+    movieAPI.upcoming,
+    {
+      getNextPageParam: (currentPage) => {
+        const nextPage = currentPage.page + 1;
+        return nextPage > currentPage.total_pages ? null : nextPage;
+      },
+    }
+  );
 
   async function onRefresh() {
     setRefreshing(true);
@@ -69,7 +85,13 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     return String(item.id);
   }
 
-  const loading = nowPlayingLoading || upcomingLoading || trendingLoading;
+  const loading = nowPlayingLoading || trendingLoading || upcomingLoading;
+
+  function loadMore() {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  }
 
   return loading ? (
     <Loader />
@@ -77,6 +99,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
     <Container
       refreshing={refreshing}
       onRefresh={onRefresh}
+      onEndReached={loadMore}
       ListHeaderComponent={
         <>
           <Swiper
@@ -118,7 +141,7 @@ export default function Movies({}: NativeStackScreenProps<any, 'Movies'>) {
           <ComingSoonTitle isDark={isDark}>Coming Soon</ComingSoonTitle>
         </>
       }
-      data={upcomingData.results}
+      data={upcomingData.pages.map((page) => page.results).flat()}
       ItemSeparatorComponent={HSeperator}
       keyExtractor={listKeyExtractor}
       renderItem={renderHMedia}
