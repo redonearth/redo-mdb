@@ -81,39 +81,27 @@ export default function Detail({
   route: { params },
 }: DetailScreenProps) {
   const isMovie = 'original_title' in params;
+
   const { isLoading, data } = useQuery(
     [isMovie ? 'movie' : 'tv', params.id],
     isMovie ? movieAPI.detail : tvAPI.detail
   );
 
-  function ShareButton() {
-    return (
-      <TouchableOpacity onPress={shareMedia}>
-        <Ionicons name="share-outline" color="white" size={24} />
-      </TouchableOpacity>
-    );
-  }
-
   async function shareMedia() {
-    const homepage = isMovie
-      ? `https://www.imdb.com/title/${data?.imdb_id}`
-      : data?.homepage;
+    const homepage =
+      isMovie && 'imdb_id' in data
+        ? `https://www.imdb.com/title/${data?.imdb_id}`
+        : data?.homepage;
 
     if (isAndroid) {
       await Share.share({
         message: `${params.overview}\nCheck it out: ${homepage}`,
-        title:
-          'original_title' in params
-            ? params.original_title
-            : params.original_name,
+        title: isMovie ? params.original_title : params.original_name,
       });
     } else {
       await Share.share({
         url: homepage,
-        title:
-          'original_title' in params
-            ? params.original_title
-            : params.original_name,
+        title: isMovie ? params.original_title : params.original_name,
       });
     }
   }
@@ -132,14 +120,18 @@ export default function Detail({
 
   useEffect(() => {
     setOptions({
-      title: 'original_title' in params ? 'Movie' : 'TV',
+      title: isMovie ? 'Movie' : 'TV',
     });
   }, []);
 
   useEffect(() => {
     if (data) {
       setOptions({
-        headerRight: () => <ShareButton />,
+        headerRight: () => (
+          <TouchableOpacity onPress={shareMedia}>
+            <Ionicons name="share-outline" color="white" size={24} />
+          </TouchableOpacity>
+        ),
       });
     }
   }, [data]);
@@ -158,9 +150,7 @@ export default function Detail({
         <Column>
           <Poster path={params.poster_path || ''} />
           <Title>
-            {'original_title' in params
-              ? params.original_title
-              : params.original_name}
+            {isMovie ? params.original_title : params.original_name}
           </Title>
         </Column>
       </Header>
