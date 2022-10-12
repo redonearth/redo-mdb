@@ -15,7 +15,16 @@ interface VotesProps {
 
 export default function Votes({ votes }: VotesProps) {
   const isDark = useColorScheme() === 'dark';
+
+  function floatVotes(votes: number) {
+    return parseFloat(
+      (Math.round((votes + Number.EPSILON) * 100) / 100).toFixed(1)
+    );
+  }
+
   return (
-    <Text isDark={isDark}>{votes > 0 ? `★ ${votes}/10` : `Coming Soon`}</Text>
+    <Text isDark={isDark}>
+      {votes > 0 ? `★ ${floatVotes(votes)}/10` : `Coming Soon`}
+    </Text>
   );
 }
