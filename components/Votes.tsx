@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { HTMLAttributes } from 'react';
 import styled from 'styled-components/native';
 import { useColorScheme } from 'react-native';
 
@@ -9,11 +9,11 @@ const Text = styled.Text<{ isDark: boolean }>`
   font-weight: 500;
 `;
 
-interface VotesProps {
+interface VotesProps extends HTMLAttributes<HTMLInputElement> {
   votes: number;
 }
 
-export default function Votes({ votes }: VotesProps) {
+export default function Votes({ votes, style }: VotesProps) {
   const isDark = useColorScheme() === 'dark';
 
   function floatVotes(votes: number) {
@@ -23,7 +23,7 @@ export default function Votes({ votes }: VotesProps) {
   }
 
   return (
-    <Text isDark={isDark}>
+    <Text isDark={isDark} style={style}>
       {votes > 0 ? `★ ${floatVotes(votes)}/10` : `Coming Soon`}
     </Text>
   );

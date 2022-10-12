@@ -19,6 +19,7 @@ import { movieAPI, tvAPI } from '../api';
 import Loader from '../components/Loader';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
+import Votes from '../components/Votes';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -34,19 +35,22 @@ const Header = styled.View`
 
 const Background = styled.Image`` as unknown as typeof Image;
 
-const Column = styled.View`
+const Info = styled.View`
   flex-direction: row;
+`;
+
+const Column = styled.View`
+  align-self: flex-end;
+  margin-left: 15px;
+  flex-shrink: 1;
 `;
 
 const Title = styled.Text`
   color: white;
-  align-self: flex-end;
   font-weight: 500;
   font-size: 32px;
   line-height: 32px;
   letter-spacing: -0.5px;
-  margin-left: 15px;
-  flex-shrink: 1;
 `;
 
 const Data = styled.View`
@@ -147,12 +151,22 @@ export default function Detail({
           colors={['transparent', COLORS.black]}
           style={StyleSheet.absoluteFill}
         />
-        <Column>
+        <Info>
           <Poster path={params.poster_path || ''} />
-          <Title>
-            {isMovie ? params.original_title : params.original_name}
-          </Title>
-        </Column>
+          <Column>
+            <Title>
+              {isMovie ? params.original_title : params.original_name}
+            </Title>
+            <Votes
+              votes={params.vote_average}
+              style={{
+                marginTop: 8,
+                fontSize: 16,
+                color: '#f6e58d',
+              }}
+            />
+          </Column>
+        </Info>
       </Header>
       <Data>
         <Overview>{params.overview}</Overview>
